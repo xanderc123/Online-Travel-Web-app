@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.kmbeast.mapper.AttractionTicketMapper">
+
+    <insert id="save">
+        INSERT INTO attraction_ticket (attraction_id, description, price, discount, number, ticket_status, create_time)
+        VALUES (#{attractionId}, #{description}, #{price}, #{discount}, #{number}, #{ticketStatus}, #{createTime})
+    </insert>
+
+    <update id="update">
+        UPDATE attraction_ticket
+        <set>
+            <if test="attractionId != null">
+                attraction_id = #{attractionId},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="discount != null">
+                discount = #{discount},
+            </if>
+            <if test="number != null">
+                number = #{number},
+            </if>
+            <if test="ticketStatus != null">
+                ticket_status = #{ticketStatus},
+            </if>
+            <if test="description != null and description != ''">
+                description = #{description},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="batchDelete" parameterType="list">
+        DELETE FROM attraction_ticket WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="query" resultMap="BaseResultMap">
+        SELECT at.*,
+        s.name AS attraction_name
+        FROM attraction_ticket at
+        LEFT JOIN attractions s ON at.attraction_id = s.id
+        <where>
+            <if test="id != null">
+                AND at.id = #{id}
+            </if>
+            <if test="attractionId != null">
+                AND at.attraction_id = #{attractionId}
+            </if>
+            <if test="description != null and description != ''">
+                AND at.description LIKE concat('%',#{description},'%')
+            </if>
+            <if test="ticketStatus != null">
+                AND at.ticket_status = #{ticketStatus}
+            </if>
+            <if test="startTime != null and endTime != null">
+                AND at.create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+        </where>
+        ORDER BY at.id DESC
+        <if test="current != null and size != null">
+            LIMIT #{current},#{size}
+        </if>
+    </select>
+
+    <!--满足分页条件的数据总项-->
+    <select id="queryCount" resultType="integer">
+
+        SELECT COUNT(*)
+        FROM attraction_ticket at
+        <where>
+            <if test="id != null">
+                AND at.id = #{id}
+            </if>
+            <if test="attractionId != null">
+                AND at.attraction_id = #{attractionId}
+            </if>
+            <if test="startTime != null and endTime != null">
+                AND at.create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+        </where>
+
+    </select>
+
+    <select id="queryByAttractionIds" resultMap="BaseResultMap">
+        SELECT at.*,
+        s.name AS attraction_name
+        FROM attraction_ticket at
+        LEFT JOIN attractions s ON at.attraction_id = s.id
+        WHERE at.attraction_id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="cn.kmbeast.pojo.vo.AttractionTicketVO">
+        <id column="id" property="id"/>
+        <result column="attraction_id" property="attractionId"/>
+        <result column="attraction_name" property="attractionName"/>
+        <result column="price" property="price"/>
+        <result column="description" property="description"/>
+        <result column="discount" property="discount"/>
+        <result column="number" property="number"/>
+        <result column="ticket_status" property="ticketStatus"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+
+</mapper>

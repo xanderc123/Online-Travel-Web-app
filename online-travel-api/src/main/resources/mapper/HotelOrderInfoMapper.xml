@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.kmbeast.mapper.HotelOrderInfoMapper">
+
+    <insert id="save">
+        INSERT INTO hotel_order_info (room_id, user_id, contact_person, contact_num, amount, pay_status, pay_time,create_time)
+        VALUES (#{roomId}, #{userId}, #{contactPerson}, #{contactNum}, #{amount}, #{payStatus}, #{payTime}, #{createTime})
+    </insert>
+
+    <update id="update">
+        UPDATE hotel_order_info
+        <set>
+            <if test="contactPerson != null and contactPerson != ''">
+                contact_person = #{contactPerson},
+            </if>
+            <if test="contactNum != null and contactNum != ''">
+                contact_num = #{contactNum},
+            </if>
+            <if test="payStatus != null">
+                pay_status = #{payStatus},
+            </if>
+            <if test="payTime != null">
+                pay_time = #{payTime},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="batchDelete" parameterType="list">
+        DELETE FROM hotel_order_info WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="query" resultMap="BaseResultMap">
+        SELECT hoi.*,
+        u.user_name,
+        hr.name AS room_name,
+        h.name AS hotel_name
+        FROM hotel_order_info hoi
+        LEFT JOIN user u ON hoi.user_id = u.id
+        LEFT JOIN hotel_room hr ON hoi.room_id = hr.id
+        LEFT JOIN hotel_info h ON hr.hotel_id = h.id
+        <where>
+            <if test="id != null">
+                AND hoi.id = #{id}
+            </if>
+            <if test="userId != null">
+                AND hoi.user_id = #{userId}
+            </if>
+            <if test="roomId != null">
+                AND hoi.room_id = #{roomId}
+            </if>
+            <if test="payStatus != null">
+                AND hoi.pay_status = #{payStatus}
+            </if>
+            <if test="startTime != null and endTime != null">
+                AND hoi.create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+        </where>
+        ORDER BY hoi.id DESC
+        <if test="current != null and size != null">
+            LIMIT #{current},#{size}
+        </if>
+    </select>
+
+    <!--满足分页条件的数据总项-->
+    <select id="queryCount" resultType="integer">
+
+        SELECT COUNT(*)
+        FROM hotel_order_info hoi
+        <where>
+            <if test="id != null">
+                AND hoi.id = #{id}
+            </if>
+            <if test="userId != null">
+                AND hoi.user_id = #{userId}
+            </if>
+            <if test="roomId != null">
+                AND hoi.room_id = #{roomId}
+            </if>
+            <if test="payStatus != null">
+                AND hoi.pay_status = #{payStatus}
+            </if>
+            <if test="startTime != null and endTime != null">
+                AND hoi.create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+        </where>
+
+    </select>
+
+    <select id="queryByHotelRoomIds" resultMap="BaseResultMap">
+        SELECT hoi.*,
+        u.user_name,
+        hr.name AS room_name,
+        h.name AS hotel_name
+        FROM hotel_order_info hoi
+        LEFT JOIN user u ON hoi.user_id = u.id
+        LEFT JOIN hotel_room hr ON hoi.room_id = hr.id
+        LEFT JOIN hotel_info h ON hr.hotel_id = h.id
+        WHERE hoi.room_id IN
+        <foreach collection="hotelRoomIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        <if test="hotelOrderInfoQueryDto.userId != null">
+            AND hoi.user_id = #{hotelOrderInfoQueryDto.userId}
+        </if>
+        <if test="hotelOrderInfoQueryDto.roomId != null">
+            AND hoi.hotelOrderInfoQueryDto.room_id = #{hotelOrderInfoQueryDto.roomId}
+        </if>
+        <if test="hotelOrderInfoQueryDto.payStatus != null">
+            AND hoi.pay_status = #{hotelOrderInfoQueryDto.payStatus}
+        </if>
+        <if test="hotelOrderInfoQueryDto.startTime != null and hotelOrderInfoQueryDto.endTime != null">
+            AND hoi.create_time BETWEEN #{hotelOrderInfoQueryDto.startTime} AND #{hotelOrderInfoQueryDto.endTime}
+        </if>
+        ORDER BY hoi.id DESC
+        <if test="hotelOrderInfoQueryDto.current != null and hotelOrderInfoQueryDto.size != null">
+            LIMIT #{hotelOrderInfoQueryDto.current},#{hotelOrderInfoQueryDto.size}
+        </if>
+
+    </select>
+
+
+    <select id="queryCountByHotelRoomIds" resultType="java.lang.Integer">
+        SELECT COUNT(*)
+        FROM hotel_order_info hoi
+        WHERE hoi.room_id IN
+        <foreach collection="hotelRoomIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        <if test="hotelOrderInfoQueryDto.userId != null">
+            AND hoi.user_id = #{hotelOrderInfoQueryDto.userId}
+        </if>
+        <if test="hotelOrderInfoQueryDto.roomId != null">
+            AND hoi.hotelOrderInfoQueryDto.room_id = #{hotelOrderInfoQueryDto.roomId}
+        </if>
+        <if test="hotelOrderInfoQueryDto.payStatus != null">
+            AND hoi.pay_status = #{hotelOrderInfoQueryDto.payStatus}
+        </if>
+        <if test="hotelOrderInfoQueryDto.startTime != null and hotelOrderInfoQueryDto.endTime != null">
+            AND hoi.create_time BETWEEN #{hotelOrderInfoQueryDto.startTime} AND #{hotelOrderInfoQueryDto.endTime}
+        </if>
+
+    </select>
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="cn.kmbeast.pojo.vo.HotelOrderInfoVO">
+        <id column="id" property="id"/>
+        <result column="room_id" property="roomId"/>
+        <result column="room_name" property="roomName"/>
+        <result column="user_id" property="userId"/>
+        <result column="hotel_name" property="hotelName"/>
+        <result column="user_name" property="userName"/>
+        <result column="contact_person" property="contactPerson"/>
+        <result column="contact_num" property="contactNum"/>
+        <result column="amount" property="amount"/>
+        <result column="pay_status" property="payStatus"/>
+        <result column="pay_time" property="payTime"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+
+</mapper>

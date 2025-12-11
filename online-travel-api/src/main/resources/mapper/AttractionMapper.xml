@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.kmbeast.mapper.AttractionMapper">
+    <insert id="save">
+        INSERT INTO attractions (name,category_id,cover,description,supplier_id,favorite_ids,view_ids,address,status,create_time)
+        VALUES (#{name}, #{categoryId}, #{cover}, #{description},#{supplierId}, #{favoriteIds}, #{viewIds}, #{address}, #{status}, #{createTime})
+    </insert>
+
+
+    <update id="update">
+        UPDATE attractions a
+        <set>
+            <if test="name!= null and name!=''">
+                name = #{name},
+            </if>
+            <if test="categoryId!= null">
+                category_id = #{categoryId},
+            </if>
+            <if test="cover!= null and cover!=''">
+                cover = #{cover},
+            </if>
+            <if test="description != null and description != ''">
+                description = #{description},
+            </if>
+            <if test="supplierId!= null">
+                supplier_id = #{supplierId},
+            </if>
+            <if test="favoriteIds!= null and favoriteIds!=''">
+                favorite_ids = #{favoriteIds},
+            </if>
+            <if test="viewIds!= null and viewIds!=''">
+            view_ids = #{viewIds},
+            </if>
+            <if test="address!= null and address!=''">
+            address = #{address},
+            </if>
+            <if test="status!= null">
+            status = #{status},
+            </if>
+        </set>
+        WHERE a.id = #{id}
+    </update>
+
+    <update id="updateSaveIds">
+        UPDATE attractions SET favorite_ids = #{favoriteIds} WHERE id =#{id}
+    </update>
+
+    <delete id="batchDelete" parameterType="list">
+        DELETE FROM attractions WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="query" resultMap="BaseResultMap">
+
+        SELECT a.*,
+               ac.name as category_name,
+               s.name AS supplier_name,
+                (SELECT AVG(ar.grade) FROM attraction_rating ar WHERE ar.attraction_id = a.id) AS rating_score
+        FROM attractions a
+        LEFT JOIN attraction_category ac ON ac.id=a.category_id
+        LEFT JOIN suppliers s ON s.id=a.supplier_id
+        <where>
+
+            <if test="id != null ">
+                AND a.id=#{id}
+            </if>
+
+            <if test="name != null and name != ''">
+                AND a.name LIKE concat('%',#{name},'%')
+            </if>
+            <if test="status != null">
+                AND a.status=#{status}
+            </if>
+            <if test="categoryId != null">
+                AND a.category_id=#{categoryId}
+            </if>
+            <if test="startTime != null and endTime != null">
+                AND a.create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+
+        </where>
+        ORDER BY a.id DESC
+        <if test="current != null and size != null">
+            LIMIT #{current},#{size}
+        </if>
+    </select>
+
+    <!--满足分页条件的数据总项-->
+    <select id="queryCount" resultType="integer">
+
+        SELECT COUNT(*)
+        FROM attractions a
+        <where>
+            <if test="id != null ">
+                AND a.id=#{id}
+            </if>
+            <if test="name != null and name != ''">
+                AND a.name LIKE concat('%',#{name},'%')
+            </if>
+            <if test="status != null">
+                AND a.status=#{status}
+            </if>
+            <if test="categoryId != null">
+                AND a.category_id=#{categoryId}
+            </if>
+            <if test="startTime != null and endTime != null">
+                AND a.create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+        </where>
+
+    </select>
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="cn.kmbeast.pojo.vo.AttractionVO">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="category_id" property="categoryId"/>
+        <result column="category_name" property="categoryName"/>
+        <result column="cover" property="cover"/>
+        <result column="description" property="description"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="supplier_name" property="supplierName"/>
+        <result column="favorite_ids" property="favoriteIds"/>
+        <result column="view_ids" property="viewIds"/>
+        <result column="rating_score" property="ratingScore"/>
+        <result column="address" property="address"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+
+    </resultMap>
+
+
+</mapper>

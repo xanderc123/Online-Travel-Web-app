@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.kmbeast.mapper.NoticeMapper">
+
+    <insert id="save">
+        INSERT INTO notice (title, content, create_time)
+        VALUES (#{title}, #{content}, #{createTime})
+    </insert>
+
+    <update id="update">
+        UPDATE notice
+        <set>
+            <if test="title != null and title != ''">
+                title = #{title},
+            </if>
+            <if test="content != null and content != ''">
+                content = #{content},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="batchDelete" parameterType="list">
+        DELETE FROM notice WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="query" resultMap="BaseResultMap">
+        SELECT n.*
+        FROM notice n
+        <where>
+            <if test="id != null">
+                AND n.id = #{id}
+            </if>
+            <if test="title != null and title != ''">
+                AND n.title LIKE concat('%',#{title},'%')
+            </if>
+            <if test="startTime != null and endTime != null">
+                AND n.create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+        </where>
+        ORDER BY n.id DESC
+        <if test="current != null and size != null">
+            LIMIT #{current},#{size}
+        </if>
+    </select>
+
+    <!--满足分页条件的数据总项-->
+    <select id="queryCount" resultType="integer">
+
+        SELECT COUNT(*)
+        FROM notice n
+        <where>
+            <if test="id != null">
+                AND n.id = #{id}
+            </if>
+            <if test="title != null and title != ''">
+                AND n.title LIKE concat('%',#{title},'%')
+            </if>
+            <if test="startTime != null and endTime != null">
+                AND n.create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+        </where>
+
+    </select>
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="cn.kmbeast.pojo.entity.Notice">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <result column="content" property="content"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+
+</mapper>

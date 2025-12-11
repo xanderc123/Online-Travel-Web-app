@@ -1,0 +1,119 @@
+# =========== 前端 Vue 相关 ===========
+# 依赖目录
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 构建输出目录
+dist/
+build/
+
+# 本地开发配置
+.env.local
+.env.*.local
+
+# 日志文件
+logs/
+*.log
+
+# 编辑器文件
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# 测试相关
+coverage/
+.nyc_output
+
+# 临时文件
+.temp/
+.cache/
+
+# =========== 后端 Spring Boot 相关 ===========
+# Maven 构建输出
+target/
+!target/*.jar
+
+# Gradle 构建输出
+build/
+.gradle/
+!gradle/wrapper/gradle-wrapper.jar
+
+# IDE
+.project
+.classpath
+.settings/
+*.iws
+*.iml
+*.ipr
+
+# 打包文件
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# 日志文件
+log/
+logs/
+*.log
+logs/*.log
+
+# 开发环境配置文件
+application-dev.properties
+application-dev.yml
+application-local.properties
+application-local.yml
+
+# 敏感配置文件 (包含密码、密钥等)
+application.properties  # 如果有敏感信息，建议不提交
+application.yml         # 如果有敏感信息，建议不提交
+
+# =========== MyBatis 相关 ===========
+# MyBatis 生成的文件（如果使用代码生成器）
+generated-sources/
+mapper/generated/
+
+# =========== 数据库相关 ===========
+# H2 数据库文件
+*.db
+*.h2.db
+
+# 本地测试数据库
+test-db/
+
+# =========== 操作系统文件 ===========
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux
+*~
+
+# =========== 其他 ===========
+# 密钥文件
+*.key
+*.pem
+*.crt
+
+# 系统文件
+.system/
+.temp/
+
+# 备份文件
+*.bak
+*.backup

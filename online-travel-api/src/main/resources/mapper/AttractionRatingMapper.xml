@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.kmbeast.mapper.AttractionRatingMapper">
+
+    <insert id="save">
+        INSERT INTO attraction_rating (attraction_id, user_id, grade, create_time)
+        VALUES (#{attractionId}, #{userId}, #{grade}, #{createTime})
+    </insert>
+
+    <select id="query" resultMap="BaseResultMap">
+        SELECT ar.*,
+        u.user_name,
+        u.user_avatar
+        FROM attraction_rating ar
+        LEFT JOIN user u ON ar.user_id = u.id
+        <where>
+            <if test="id != null">
+                AND ar.id = #{id}
+            </if>
+            <if test="attractionId != null">
+                AND ar.attraction_id = #{attractionId}
+            </if>
+            <if test="userId != null">
+                AND ar.user_id = #{userId}
+            </if>
+            <if test="startTime != null and endTime != null">
+                AND sl.create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+        </where>
+        ORDER BY ar.grade
+        <if test="current != null and size != null">
+            LIMIT #{current},#{size}
+        </if>
+    </select>
+
+    <!--满足分页条件的数据总项-->
+    <select id="queryCount" resultType="integer">
+
+        SELECT COUNT(*)
+        FROM attraction_rating ar
+        <where>
+            <if test="id != null">
+                AND ar.id = #{id}
+            </if>
+            <if test="attractionId != null">
+                AND ar.attraction_id = #{attractionId}
+            </if>
+            <if test="userId != null">
+                AND ar.user_id = #{userId}
+            </if>
+            <if test="startTime != null and endTime != null">
+                AND sl.create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+        </where>
+
+    </select>
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="cn.kmbeast.pojo.vo.AttractionRatingVO">
+        <id column="id" property="id"/>
+        <result column="attraction_id" property="attractionId"/>
+        <result column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
+        <result column="user_avatar" property="userAvatar"/>
+        <result column="grade" property="grade"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+
+</mapper>

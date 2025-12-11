@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.kmbeast.mapper.TouristRouteMapper">
+    <insert id="save">
+        INSERT INTO tourist_route (attraction_id, cover, description, level, create_time)
+        VALUES (#{attractionId}, #{cover}, #{description}, #{level}, #{createTime})
+    </insert>
+
+    <update id="update">
+        UPDATE tourist_route
+        <set>
+            <if test="attractionId != null">
+                attraction_id = #{attractionId},
+            </if>
+            <if test="cover != null and cover != ''">
+                cover = #{cover},
+            </if>
+            <if test="description != null and description != ''">
+                description = #{description},
+            </if>
+            <if test="level != null">
+                level = #{level},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="batchDelete" parameterType="list">
+        DELETE FROM tourist_route WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="query" resultMap="BaseResultMap">
+        SELECT tr.*,
+        a.name AS attraction_name,
+        a.cover AS attraction_cover,
+        a.address AS attraction_address
+        FROM tourist_route tr
+        LEFT JOIN attractions a ON tr.attraction_id = a.id
+        <where>
+            <if test="id != null">
+                AND tr.id = #{id}
+            </if>
+            <if test="attractionId != null">
+                AND tr.attraction_id = #{attractionId}
+            </if>
+            <if test="name != null and name != ''">
+                AND tr.name LIKE concat('%',#{name},'%')
+            </if>
+            <if test="startTime != null and endTime != null">
+                AND tr.create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+        </where>
+        ORDER BY tr.level
+        <if test="current != null and size != null">
+            LIMIT #{current},#{size}
+        </if>
+    </select>
+
+    <!--满足分页条件的数据总项-->
+    <select id="queryCount" resultType="integer">
+
+        SELECT COUNT(*)
+        FROM tourist_route tr
+        <where>
+            <if test="id != null">
+                AND tr.id = #{id}
+            </if>
+            <if test="attractionId != null">
+                AND tr.attraction_id = #{attractionId}
+            </if>
+            <if test="name != null and name != ''">
+                AND tr.name LIKE concat('%',#{name},'%')
+            </if>
+            <if test="startTime != null and endTime != null">
+                AND tr.create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+        </where>
+
+    </select>
+
+    <!-- 通用查询映射结果 -->
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="cn.kmbeast.pojo.vo.TouristRouteVO">
+        <id column="id" property="id"/>
+        <result column="atttraction_id" property="attractionId"/>
+        <result column="cover" property="cover"/>
+        <result column="description" property="description"/>
+        <result column="level" property="level"/>
+        <result column="attraction_name" property="attractionName"/>
+        <result column="attraction_cover" property="attractionCover"/>
+        <result column="attraction_address" property="attractionAddress"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+
+
+</mapper>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.kmbeast.mapper.HotelRoomBedMapper">
+
+    <insert id="save">
+        INSERT INTO hotel_room_bed (num, room_id, status, create_time)
+        VALUES (#{number}, #{roomId}, #{status}, #{createTime})
+    </insert>
+
+    <update id="update">
+        UPDATE hotel_room_bed
+        <set>
+            <if test="number != null">
+                number = #{number},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="batchDelete" parameterType="list">
+        DELETE FROM hotel_room_bed WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="query" resultMap="BaseResultMap">
+        SELECT hrb.*
+        FROM hotel_room_bed hrb
+        <where>
+            <if test="id != null">
+                AND hrb.id = #{id}
+            </if>
+            <if test="roomId != null">
+                AND hrb.room_id = #{roomId}
+            </if>
+            <if test="status != null">
+                AND hrb.status = #{status}
+            </if>
+            <if test="startTime != null and endTime != null">
+                AND hrb.create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+        </where>
+        ORDER BY hrb.id DESC
+        <if test="current != null and size != null">
+            LIMIT #{current},#{size}
+        </if>
+    </select>
+
+    <!--满足分页条件的数据总项-->
+    <select id="queryCount" resultType="integer">
+
+        SELECT COUNT(*)
+        FROM hotel_room_bed hrb
+        <where>
+            <if test="id != null">
+                AND hrb.id = #{id}
+            </if>
+            <if test="roomId != null">
+                AND hrb.room_id = #{roomId}
+            </if>
+            <if test="status != null">
+                AND hrb.status = #{status}
+            </if>
+            <if test="startTime != null and endTime != null">
+                AND hrb.create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+        </where>
+
+    </select>
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="cn.kmbeast.pojo.entity.HotelRoomBed">
+        <id column="id" property="id"/>
+        <result column="number" property="number"/>
+        <result column="room_id" property="roomId"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+
+</mapper>

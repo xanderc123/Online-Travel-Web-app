@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.kmbeast.mapper.SupplierMapper">
+    <insert id="save">
+        INSERT INTO suppliers (name,contact_person,contact_number,location,email,product_type,user_id,is_audit,status,create_time)
+        VALUES (#{name},#{contactPerson},#{contactNumber},#{location},#{email},#{productType},#{userId},#{isAudit},#{status},#{createTime})
+    </insert>
+
+    <update id="update">
+        UPDATE suppliers s
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="contactPerson != null and contactPerson != ''">
+                contact_person = #{contactPerson},
+            </if>
+            <if test="contactNumber != null and contactNumber != ''">
+                contact_number = #{contactNumber},
+            </if>
+            <if test="email != null and email != ''">
+                email = #{email},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="isAudit != null">
+                is_audit = #{isAudit},
+            </if>
+            <if test="status != null">
+                status = #{status}
+            </if>
+        </set>
+        WHERE s.id = #{id}
+    </update>
+    <delete id="batchDelete" parameterType="list">
+        DELETE FROM suppliers WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="query" resultMap="BaseResultMap">
+
+        SELECT s.*,u.user_name
+        FROM suppliers s
+        LEFT JOIN user u ON u.id=s.user_id
+        <where>
+
+            <if test="id != null ">
+                AND s.id=#{id}
+            </if>
+            <if test="userId != null ">
+                AND s.user_id=#{userId}
+            </if>
+
+            <if test="name != null and name != ''">
+                AND s.name LIKE concat('%',#{name},'%')
+            </if>
+            <if test="isAudit != null">
+               AND s.is_audit=#{isAudit}
+            </if>
+            <if test="status != null">
+                AND s.status=#{status}
+            </if>
+            <if test="startTime != null and endTime != null">
+                AND s.create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+
+        </where>
+        ORDER BY s.id DESC
+        <if test="current != null and size != null">
+            LIMIT #{current},#{size}
+        </if>
+    </select>
+
+    <!--满足分页条件的数据总项-->
+    <select id="queryCount" resultType="integer">
+
+        SELECT COUNT(*)
+        FROM suppliers s
+        <where>
+
+
+            <if test="id != null ">
+                AND s.id=#{id}
+            </if>
+            <if test="name != null and name != ''">
+                AND s.name LIKE concat('%',#{name},'%')
+            </if>
+            <if test="isAudit != null">
+                AND s.is_audit=#{isAudit}
+            </if>
+            <if test="status != null">
+                AND s.status=#{status}
+            </if>
+            <if test="startTime != null and endTime != null">
+                AND s.create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+
+        </where>
+
+    </select>
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="cn.kmbeast.pojo.vo.SupplierVO">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="contact_person" property="contactPerson"/>
+        <result column="contact_number" property="contactNumber"/>
+        <result column="email" property="email"/>
+        <result column="product_type" property="productType"/>
+        <result column="user_id" property="userId"/>
+        <result column="user_name" property="userName"/>
+        <result column="location" property="location"/>
+        <result column="is_audit" property="isAudit"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+
+    </resultMap>
+
+
+</mapper>

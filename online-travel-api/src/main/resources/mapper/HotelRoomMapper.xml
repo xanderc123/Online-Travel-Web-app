@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.kmbeast.mapper.HotelRoomMapper">
+
+    <insert id="save">
+        INSERT INTO hotel_room(name, hotel_id, cover, price, discount, description, create_time)
+        VALUES (#{name}, #{hotelId}, #{cover}, #{price}, #{discount}, #{description}, #{createTime})
+    </insert>
+
+    <update id="update">
+        UPDATE hotel_room
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="hotelId != null">
+                hotel_id = #{hotelId},
+            </if>
+            <if test="cover != null and cover != ''">
+                cover = #{cover},
+            </if>
+            <if test="price != null">
+                price = #{price},
+            </if>
+            <if test="discount != null">
+                discount = #{discount},
+            </if>
+            <if test="description != null and description != ''">
+                description = #{description},
+            </if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="batchDelete" parameterType="list">
+        DELETE FROM hotel_room WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="query" resultMap="BaseResultMap">
+        SELECT hr.*,h.name AS hotel_name
+        FROM hotel_room hr
+        LEFT JOIN hotel_info h ON hr.hotel_id = h.id
+        <where>
+            <if test="id != null">
+                AND hr.id = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                AND hr.name LIKE concat('%',#{name},'%')
+            </if>
+            <if test="hotelId != null">
+                AND hr.hotel_id = #{hotelId}
+            </if>
+            <if test="startTime != null and endTime != null">
+                AND hr.create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+        </where>
+        ORDER BY hr.id DESC
+        <if test="current != null and size != null">
+            LIMIT #{current},#{size}
+        </if>
+    </select>
+
+    <!--满足分页条件的数据总项-->
+    <select id="queryCount" resultType="integer">
+
+        SELECT COUNT(*)
+        FROM hotel_room hr
+        <where>
+            <if test="id != null">
+                AND hr.id = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                AND hr.name LIKE concat('%',#{name},'%')
+            </if>
+            <if test="hotelId != null">
+                AND hr.hotel_id = #{hotelId}
+            </if>
+            <if test="startTime != null and endTime != null">
+                AND hr.create_time BETWEEN #{startTime} AND #{endTime}
+            </if>
+        </where>
+
+    </select>
+
+    <select id="querySupplierRoom" resultMap="BaseResultMap">
+        SELECT hr.*,
+        h.name AS hotel_name
+        FROM hotel_room hr
+        LEFT JOIN hotel_info h ON hr.hotel_id = h.id
+        WHERE hr.hotel_id IN
+        <foreach collection="hotelIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        <if test="id != null">
+            AND hr.id = #{id}
+        </if>
+        <if test="hotelId != null">
+            AND hr.hotel_id = #{hotelId}
+        </if>
+        <if test="name != null and name != ''">
+            AND hr.name LIKE concat('%',#{name},'%')
+        </if>
+        <if test="startTime != null and endTime != null">
+            AND hr.create_time BETWEEN #{startTime} AND #{endTime}
+        </if>
+        ORDER BY hr.id DESC
+        <if test="current != null and size != null">
+            LIMIT #{current},#{size}
+        </if>
+    </select>
+
+    <!--满足分页条件的数据总项-->
+    <select id="querySupplierRoomCount" resultType="integer">
+        SELECT COUNT(*)
+        FROM hotel_room hr
+        WHERE hr.hotel_id IN
+        <foreach collection="hotelIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+        <if test="id != null">
+            AND hr.id = #{id}
+        </if>
+        <if test="hotelId != null">
+            AND hr.hotel_id = #{hotelId}
+        </if>
+        <if test="name != null and name != ''">
+            AND hr.name LIKE concat('%',#{name},'%')
+        </if>
+        <if test="startTime != null and endTime != null">
+            AND hr.create_time BETWEEN #{startTime} AND #{endTime}
+        </if>
+    </select>
+
+    <select id="queryByHotelIds" resultMap="BaseResultMap">
+        SELECT hr.*,h.name AS hotel_name
+        FROM hotel_room hr
+        LEFT JOIN hotel_info h ON hr.hotel_id = h.id
+        WHERE hr.hotel_id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="cn.kmbeast.pojo.vo.HotelRoomVO">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="cover" property="cover"/>
+        <result column="hotel_id" property="hotelId"/>
+        <result column="hotel_name" property="hotelName"/>
+        <result column="price" property="price"/>
+        <result column="discount" property="discount"/>
+        <result column="description" property="description"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+
+</mapper>
